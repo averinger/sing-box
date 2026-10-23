@@ -7,34 +7,44 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # 1. Клонируем ОРИГИНАЛЬНЫЙ репозиторий SagerNet/sing-box (а не твой форк)
-      - name: Checkout official sing-box repository
+      # 1. Клонируем ОФИЦИАЛЬНЫЙ репозиторий SagerNet/sing-box
+      - name: Checkout SagerNet/sing-box
         uses: actions/checkout@v4
         with:
           repository: SagerNet/sing-box
-          ref: dev          # или main, если dev недоступен
-          fetch-depth: 0    # Скачиваем всю историю, включая теги
+          ref: dev # У sing-box основная ветка dev
+          fetch-depth: 0
+          fetch-tags: true
 
-      - name: Set up Go
+      # 2. Устанавливаем Go
+      - name: Set up Go 1.24
         uses: actions/setup-go@v5
         with:
           go-version: '1.24'
 
-      - name: Install gomobile
+      # 3. Устанавливаем правильный gomobile (форк от sagernet)
+      - name: Install gomobile and gobind
         run: |
           go install github.com/sagernet/gomobile/cmd/gomobile@latest
           go install github.com/sagernet/gomobile/cmd/gobind@latest
           echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
+      # 4. Устанавливаем Android SDK и NDK
+      - name: Set up Android SDK and NDK
+        uses: nwtgck/actions-android-sdk@v28
+        with:
+          sdk-version: 34
+          ndk-version: 27.0.12077973
+
+      # 5. Запускаем ОФИЦИАЛЬНЫЙ скрипт сборки libbox
       - name: Build libbox.aar
         run: |
-          # Устанавливаем NDK
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;27.0.12077973"
-          # Собираем библиотеку с нужными тегами
           go run ./cmd/internal/build_libbox -target android -tags "with_quic,with_wireguard,with_utls,with_clash_api,with_gvisor"
 
-      - name: Upload libbox.aar
+      # 6. Загружаем результат
+      - name: Upload libbox.aar artifact
         uses: actions/upload-artifact@v4
         with:
           name: libbox-android
           path: libbox.aar
+          if-no-files-found: error
