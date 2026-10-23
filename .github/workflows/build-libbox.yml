@@ -7,16 +7,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      # 1. Клонируем ОРИГИНАЛЬНЫЙ репозиторий SagerNet/sing-box (а не форк)
+      - name: Checkout official sing-box repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          fetch-tags: true
-
-      - name: Fetch tags from upstream (Robust)
-        run: |
-          # Принудительно скачиваем все теги из оригинального репозитория
-          git fetch --tags --force https://github.com/SagerNet/sing-box.git
+          repository: SagerNet/sing-box
+          ref: dev # или main, если dev недоступен
+          fetch-depth: 0 # Скачиваем всю историю, включая теги
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -31,7 +28,9 @@ jobs:
 
       - name: Build libbox.aar
         run: |
+          # Устанавливаем NDK
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;27.0.12077973"
+          # Собираем библиотеку с нужными тегами
           go run ./cmd/internal/build_libbox -target android -tags "with_quic,with_wireguard,with_utls,with_clash_api,with_gvisor"
 
       - name: Upload libbox.aar
