@@ -9,6 +9,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0      # Скачиваем всю историю, включая теги (фикс ошибки git describe)
+          fetch-tags: true    # Явно указываем, что нужны теги
 
       - name: Set up Go
         uses: actions/setup-go@v5
