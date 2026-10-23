@@ -13,10 +13,10 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Fetch tags from upstream
+      - name: Fetch tags from upstream (Robust)
         run: |
-          git remote add upstream https://github.com/SagerNet/sing-box.git
-          git fetch upstream --tags --force
+          # Принудительно скачиваем все теги из оригинального репозитория
+          git fetch --tags --force https://github.com/SagerNet/sing-box.git
 
       - name: Set up Go
         uses: actions/setup-go@v5
