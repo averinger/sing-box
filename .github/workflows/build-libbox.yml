@@ -1,0 +1,36 @@
+name: Build Android libbox.aar
+
+on:
+  workflow_dispatch: # Позволяет запускать сборку вручную
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24' # Используем стабильную версию Go
+
+      - name: Install gomobile
+        run: |
+          go install github.com/sagernet/gomobile/cmd/gomobile@latest
+          go install github.com/sagernet/gomobile/cmd/gobind@latest
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+      - name: Build libbox.aar
+        run: |
+          # Устанавливаем NDK, который требует сборщик
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;27.0.12077973"
+          
+          # Запускаем сборку
+          go run ./cmd/internal/build_libbox -target android
+
+      - name: Upload libbox.aar
+        uses: actions/upload-artifact@v4
+        with:
+          name: libbox-android
+          path: libbox.aar
