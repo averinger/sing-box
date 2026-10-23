@@ -1,7 +1,7 @@
 name: Build Android libbox.aar
 
 on:
-  workflow_dispatch: # Позволяет запускать сборку вручную
+  workflow_dispatch:
 
 jobs:
   build:
@@ -10,13 +10,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0      # Скачиваем всю историю, включая теги (фикс ошибки git describe)
-          fetch-tags: true    # Явно указываем, что нужны теги
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24' # Используем стабильную версию Go
+          go-version: '1.24'
 
       - name: Install gomobile
         run: |
@@ -29,8 +29,8 @@ jobs:
           # Устанавливаем NDK, который требует сборщик
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;27.0.12077973"
           
-          # Запускаем сборку
-          go run ./cmd/internal/build_libbox -target android
+          # Запускаем сборку, ЯВНО ИСКЛЮЧАЯ тег with_naive_outbound
+          go run ./cmd/internal/build_libbox -target android -tags "with_quic,with_wireguard,with_utls,with_clash_api,with_gvisor"
 
       - name: Upload libbox.aar
         uses: actions/upload-artifact@v4
