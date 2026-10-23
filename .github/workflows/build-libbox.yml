@@ -13,6 +13,11 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      - name: Fetch tags from upstream
+        run: |
+          git remote add upstream https://github.com/SagerNet/sing-box.git
+          git fetch upstream --tags --force
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
@@ -26,10 +31,7 @@ jobs:
 
       - name: Build libbox.aar
         run: |
-          # Устанавливаем NDK, который требует сборщик
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;27.0.12077973"
-          
-          # Запускаем сборку, ЯВНО ИСКЛЮЧАЯ тег with_naive_outbound
           go run ./cmd/internal/build_libbox -target android -tags "with_quic,with_wireguard,with_utls,with_clash_api,with_gvisor"
 
       - name: Upload libbox.aar
