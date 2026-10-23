@@ -7,13 +7,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # 1. Клонируем ОРИГИНАЛЬНЫЙ репозиторий SagerNet/sing-box (а не форк)
+      # 1. Клонируем ОРИГИНАЛЬНЫЙ репозиторий SagerNet/sing-box (а не твой форк)
       - name: Checkout official sing-box repository
         uses: actions/checkout@v4
         with:
           repository: SagerNet/sing-box
-          ref: dev # или main, если dev недоступен
-          fetch-depth: 0 # Скачиваем всю историю, включая теги
+          ref: dev          # или main, если dev недоступен
+          fetch-depth: 0    # Скачиваем всю историю, включая теги
 
       - name: Set up Go
         uses: actions/setup-go@v5
